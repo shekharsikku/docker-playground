@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { ZodSchema } from "zod";
+import { Request, Response, NextFunction } from "express";
+import { ZodSchema, ZodError } from "zod";
 import { ApiError } from "../utils/response.js";
 
 export const validate =
@@ -9,6 +9,7 @@ export const validate =
       req.body = schema.parse(req.body);
       next();
     } catch (error: any) {
-      return ApiError(res, 400, "Validation error occurred!", error.errors);
+      const errors = error.errors as ZodError;
+      return ApiError(res, 400, "Validation error occurred!", errors);
     }
   };

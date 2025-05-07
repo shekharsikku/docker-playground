@@ -33,7 +33,7 @@ const ApiError = (
   res.status(code).json(response);
 };
 
-const ApiResponse = (
+const ApiSuccess = (
   res: Response,
   code: number,
   message: string,
@@ -45,4 +45,4 @@ const ApiResponse = (
   res.status(code).json(response);
 };
 
-export { HttpError, ApiError, ApiResponse };
+export { HttpError, ApiError, ApiSuccess };

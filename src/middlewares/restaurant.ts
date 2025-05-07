@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { initializeRedisClient } from "../utils/client.js";
 import { restaurantKeyById } from "../utils/keys.js";
 import { ApiError } from "../utils/response.js";

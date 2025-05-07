@@ -1,11 +1,11 @@
+import { ApiSuccess, ApiError, HttpError } from "./utils/response.js";
 import express, {
   Request,
   Response,
   NextFunction,
   ErrorRequestHandler,
 } from "express";
-import { ApiResponse, ApiError, HttpError } from "./utils/response.js";
-import { ApiRouter } from "./routes/index.js";
+import routers from "./routers/index.js";
 import env from "./utils/env.js";
 
 const app = express();
@@ -24,10 +24,10 @@ app.use(
   })
 );
 
-app.use("/api", ApiRouter);
+app.use("/api", routers);
 
 app.get(["/", "/hello"], (req: Request, res: Response) => {
-  return ApiResponse(res, 200, `Welcome, ${req.query.name || "User"}!`);
+  return ApiSuccess(res, 200, `Welcome, ${req.query.name || "User"}!`);
 });
 
 app.use((req: Request, res: Response) => {
@@ -37,15 +37,22 @@ app.use((req: Request, res: Response) => {
 
 app.use(((err: Error, _req: Request, res: Response, next: NextFunction) => {
   if (res.headersSent) return next(err);
-  if (err instanceof HttpError) return ApiError(res, err.code, err.message);
 
-  const message =
-    err.message ||
-    (env.NODE_ENV === "production"
-      ? "Something went wrong!"
-      : "Unknown error occurred!");
+  if (err instanceof HttpError) {
+    return ApiError(
+      res,
+      err.code || 500,
+      err.message || "Internal server error!"
+    );
+  }
 
-  console.log(`Error: ${message}`);
+  const fallback = env.isProd
+    ? "Something went wrong!"
+    : "Unknown error occurred!";
+
+  const message = err.message || fallback;
+
+  console.error(`Error: ${message}`);
 
   return ApiError(res, 500, message);
 }) as ErrorRequestHandler);
